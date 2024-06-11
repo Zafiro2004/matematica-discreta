@@ -100,9 +100,28 @@ class Entrega {
     /*
      * És cert que ∀x : P(x) -> ∃!y : Q(x,y) ?
      */
-    static boolean exercici2(int[] universe, Predicate<Integer> p, BiPredicate<Integer, Integer> q) {
-      return false; // TODO
+    static boolean exercici2(int[] universe, Predicate<Integer> p, Predicate<Integer> q) {
+    Integer xUnico = null; // Usaremos esto para almacenar el único x que cumple la condición, si existe
+
+    for (int x : universe) {
+        boolean cumpleParaTodoY = true;
+        for (int y : universe) {
+            if (q.test(y) && !p.test(x)) {
+                cumpleParaTodoY = false;
+                break; // Si encontramos un y para el cual no se cumple la condición, no es necesario seguir comprobando
+            }
+        }
+        if (cumpleParaTodoY) {
+            if (xUnico == null) {
+                xUnico = x; // Encontramos un x que cumple la condición, lo almacenamos
+            } else {
+                return false; // Si ya teníamos un x y encontramos otro, no es único
+            }
+        }
     }
+
+    return xUnico != null; // Si encontramos un único x que cumple la condición, devolvemos true
+}
 
     /*
      * És cert que ∃x : ∀y : Q(x, y) -> P(x) ?
