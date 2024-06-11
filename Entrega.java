@@ -75,60 +75,70 @@ class Entrega {
       int combinaciones = (int) Math.pow(2, n);
       int cierto = 0;
 
-      for (int i = 0; i < combinaciones; i++) {
+      for (int i = 0; i < combinaciones; i++) {   // Bucle principal que itera sobre todas las combinaciones posibles
           int ciertasAhora = i;
           boolean anteriorVerdadera = true;
 
-          for (int j = 1; j <= n; j++) {
+          for (int j = 1; j <= n; j++) {  // Bucle anidado que itera sobre cada bit de la combinación actual
               int verdaderoValor = (ciertasAhora & 1) == 1 ? 1 : 0;
               ciertasAhora >>= 1;
 
-              if (j > 1 && anteriorVerdadera) {
+              if (j > 1 && anteriorVerdadera) {  // Aplicamos la condición lógica
                   anteriorVerdadera = verdaderoValor == 1;
               } else {
                   anteriorVerdadera = verdaderoValor == 1 || !anteriorVerdadera;
               }
           }
 
-          if (anteriorVerdadera) {
+          if (anteriorVerdadera) { // Si la condición lógica es verdadera, incrementamos el contador cierto
               cierto++;
           }
       }
 
-      return cierto;
+      return cierto; // Devolvemos el número de combinaciones que satisfacen la condición lógica
     }
     /*
      * És cert que ∀x : P(x) -> ∃!y : Q(x,y) ?
      */
     static boolean exercici2(int[] universe, Predicate<Integer> p, Predicate<Integer> q) {
-    Integer xUnico = null; // Usaremos esto para almacenar el único x que cumple la condición, si existe
-
     for (int x : universe) {
-        boolean cumpleParaTodoY = true;
-        for (int y : universe) {
-            if (q.test(y) && !p.test(x)) {
-                cumpleParaTodoY = false;
-                break; // Si encontramos un y para el cual no se cumple la condición, no es necesario seguir comprobando
-            }
-        }
-        if (cumpleParaTodoY) {
-            if (xUnico == null) {
-                xUnico = x; // Encontramos un x que cumple la condición, lo almacenamos
-            } else {
-                return false; // Si ya teníamos un x y encontramos otro, no es único
-            }
-        }
+          if (p.test(x)) {
+              boolean existeY = false;
+              for (int y : universe) {
+                  if (q.test(x, y)) {
+                      if (existeY) {
+                          return false; // Se encontró más de un y que cumple Q(x, y)
+                      }
+                      existeY = true;
+                  }
+              }
+              if (!existeY) {
+                  return false; // No se encontró ningún y que cumple Q(x, y)
+              }
+          }
+      }
+      return true; // Para todos los x donde P(x) es verdadero, existe un único y que cumple Q(x, y)
     }
-
-    return xUnico != null; // Si encontramos un único x que cumple la condición, devolvemos true
-}
 
     /*
      * És cert que ∃x : ∀y : Q(x, y) -> P(x) ?
      */
     static boolean exercici3(int[] universe, Predicate<Integer> p, BiPredicate<Integer, Integer> q) {
-      return false; // TODO
+for (int x : universe) {
+          boolean valido = true;
+          for (int y : universe) {
+              if (q.test(x, y) && !p.test(x)) {
+                  valido = false; // Si Q(x, y) es verdadero y P(x) es falso, x no cumple la condición
+                  break;
+              }
+          }
+          if (valido) {
+              return true; // Se ha encontrado una x
+          }
+      }
+      return false; //No se ha encontrado ninguna x
     }
+
 
     /*
      * És cert que ∃x : ∃!y : ∀z : P(x,z) <-> Q(y,z) ?
