@@ -71,9 +71,32 @@ class Entrega {
      * Vegeu el mètode Tema1.tests() per exemples.
      */
     static int exercici1(int n) {
-      return 0; // TODO
-    }
+      n++;
+      int combinaciones = (int) Math.pow(2, n);
+      int cierto = 0;
 
+      for (int i = 0; i < combinaciones; i++) {
+          int ciertasAhora = i;
+          boolean anteriorVerdadera = true;
+
+          for (int j = 1; j <= n; j++) {
+              int verdaderoValor = (ciertasAhora & 1) == 1 ? 1 : 0;
+              ciertasAhora >>= 1;
+
+              if (j > 1 && anteriorVerdadera) {
+                  anteriorVerdadera = verdaderoValor == 1;
+              } else {
+                  anteriorVerdadera = verdaderoValor == 1 || !anteriorVerdadera;
+              }
+          }
+
+          if (anteriorVerdadera) {
+              cierto++;
+          }
+      }
+
+      return cierto;
+    }
     /*
      * És cert que ∀x : P(x) -> ∃!y : Q(x,y) ?
      */
