@@ -144,7 +144,17 @@ for (int x : universe) {
      * És cert que ∃x : ∃!y : ∀z : P(x,z) <-> Q(y,z) ?
      */
     static boolean exercici4(int[] universe, BiPredicate<Integer, Integer> p, BiPredicate<Integer, Integer> q) {
-      return false; // TODO
+      for (int x : universe) { // Iteramos sobre cada elemento x en el conjunto universo
+        if (!p.test(x)) { // Si no cumple la condición p(x), devuelve true
+          return true;
+        }
+      }
+      for (int x : universe) {  // Si no encontramos un elemento que no cumpla p(x), iteramos sobre cada elemento x en el conjunto universo
+        if (!q.test(x)) { // Si no cumple la condición q(x), devuelve false
+          return false;
+        }
+      }
+      return true;   // Si no encontramos un elemento que no cumpla p(x) ni q(x), devuelve true
     }
 
     /*
@@ -255,9 +265,38 @@ for (int x : universe) {
      * Podeu soposar que `a`, `b` i `c` estan ordenats de menor a major.
      */
     static int exercici1(int[] a, int[] b, int[] c) {
-      return -1; // TODO
+for (int x : a) {
+        if (!containsPair(rel, x, x)) {
+          return false;
+        }
+      }
+      for (int[] par : rel) {
+        if (!containsPair(rel, par[1], par[0])) {
+          return false;
+        }
+      }
+
+      // Comprovar la transitivitat
+      for (int[] par1 : rel) {
+        for (int[] par2 : rel) {
+          if (par1[1] == pair2[0] && !containsPair(rel, par1[0], par2[1])) {
+            return false;
+          }
+        }
+      }
+
+      return true;
     }
 
+    static boolean containsPair(int[][] rel, int x, int y) {
+      for (int[] pair : rel) {
+        if (pair[0] == x && pair[1] == y) {
+          return true;
+        }
+      }
+      return false;
+    }
+  }
     /*
      * La clausura d'equivalència d'una relació és el resultat de fer-hi la clausura reflexiva, simètrica i
      * transitiva simultàniament, i, per tant, sempre és una relació d'equivalència.
