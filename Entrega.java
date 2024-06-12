@@ -265,21 +265,21 @@ for (int x : universe) {
      * Podeu soposar que `a`, `b` i `c` estan ordenats de menor a major.
      */
     static int exercici1(int[] a, int[] b, int[] c) {
-for (int x : a) {
-        if (!containsPair(rel, x, x)) {
+for (int x : a) { // Comprobar si el conjunto `a` no contiene pares
+        if (!contienePar(rel, x, x)) {
           return false;
         }
       }
-      for (int[] par : rel) {
-        if (!containsPair(rel, par[1], par[0])) {
+      for (int[] par : rel) { // Comprobar si el conjunto `rel` no contiene pares que no estén en el conjunto `rel`
+        if (!contienePar(rel, par[1], par[0])) {
           return false;
         }
       }
 
       // Comprovar la transitivitat
-      for (int[] par1 : rel) {
+      for (int[] par1 : rel) {  // Comprobar la transitividad
         for (int[] par2 : rel) {
-          if (par1[1] == pair2[0] && !containsPair(rel, par1[0], par2[1])) {
+          if (par1[1] == pair2[0] && !contienePar(rel, par1[0], par2[1])) {  // Si el primer elemento de `par1` es igual al segundo elemento de `par2` y no contiene el par inverso en `rel`
             return false;
           }
         }
@@ -287,9 +287,16 @@ for (int x : a) {
 
       return true;
     }
-
-    static boolean containsPair(int[][] rel, int x, int y) {
-      for (int[] pair : rel) {
+    /*
+ * Comprueba si un par está en el conjunt `rel`.
+ * 
+ * @param rel Conjunt de pares.
+ * @param x Primer elemento del par.
+ * @param y Segundo elemento del par.
+ * @return `true` si el par está en `rel`, `false` en caso contrario.
+ */
+    static boolean contienePar(int[][] rel, int x, int y) {
+      for (int[] pair : rel) { // Recorrer cada par en `rel`
         if (pair[0] == x && pair[1] == y) {
           return true;
         }
@@ -297,17 +304,92 @@ for (int x : a) {
       return false;
     }
   }
-    /*
-     * La clausura d'equivalència d'una relació és el resultat de fer-hi la clausura reflexiva, simètrica i
-     * transitiva simultàniament, i, per tant, sempre és una relació d'equivalència.
-     *
-     * Trobau el cardinal d'aquesta clausura.
-     *
-     * Podeu soposar que `a` i `rel` estan ordenats de menor a major (`rel` lexicogràficament).
-     */
-    static int exercici2(int[] a, int[][] rel) {
-      return -1; // TODO
+/**
+ * Calcula la clausura d'equivalència d'una relació y cuenta el número de elementos en ella.
+ * 
+ * La clausura d'equivalència es el resultado de aplicar simultáneamente la clausura reflexiva,
+ * simétrica y transitiva a una relació. Siempre resulta en una relació d'equivalència.
+ * 
+ * Se supone que `a` y `rel` están ordenados de menor a mayor (`rel` lexicográficamente).
+ */
+static int exercici2(int[] a, int[][] rel) {
+    int[][] clausuraReflexiva = clausuraReflexiva(rel, a.length);  // Calcular la clausura reflexiva de la relación
+    int[][] clausuraSimetrica = clausuraSimetrica(clausuraReflexiva); // Calcular la clausura simétrica de la clausura reflexiva
+    int[][] clausuraTransitiva = clausuraTransitiva(clausuraSimetrica); // Calcular la clausura transitiva de la clausura simétrica
+    int cardinality = contadorElementos(clausuraTransitiva); // Contar el número de elementos en la clausura transitiva (clausura d'equivalència)
+    return cardinality;
+}
+
+/**
+ * Calcula la clausura reflexiva de una relación.
+ * 
+ * @param rel La relación original.
+ * @param n El número de elementos en el conjunto.
+ * @return La clausura reflexiva de la relación.
+ */
+static int[][] clausuraReflexiva(int[][] rel, int n) {
+    int[][] clausuraReflexiva = new int[n][n];
+    for (int i = 0; i < n; i++) {
+        // Copiar la relación original en la nueva matriz
+        System.arraycopy(rel[i], 0, clausuraReflexiva[i], 0, n);
+        clausuraReflexiva[i][i] = 1; // Hacer reflexiva la relación
     }
+    return clausuraReflexiva;
+}
+
+/**
+ * Calcula la clausura simétrica de una relación.
+ * 
+ * @param rel La relación original.
+ * @return La clausura simétrica de la relación.
+ */
+static int[][] clausuraSimetrica(int[][] rel) {
+    int n = rel.length;
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            if (rel[i][j] == 1) {
+                rel[j][i] = 1; // Hacer simétrica la relación
+            }
+        }
+    }
+    return rel;
+}
+
+/**
+ * Calcula la clausura transitiva de una relación.
+ * 
+ * @param rel La relación original.
+ * @return La clausura transitiva de la relación.
+ */
+static int[][] clausuraTransitiva(int[][] rel) {
+    int r = rel.length;
+    for (int k = 0; k < r; k++) {
+        for (int i = 0; i < r; i++) {
+            for (int j = 0; j < r; j++) {
+                rel[i][j] |= (rel[i][k] & rel[k][j]); // Hacer transitiva la relación
+            }
+        }
+    }
+    return rel;
+}
+
+/**
+ * Cuenta el número de elementos en una relación.
+ * 
+ * @param rel La relación.
+ * @return El número de elementos en la relación.
+ */
+static int contadorElementos(int[][] rel) {
+    int cont = 0;
+    for (int[] row : rel) {
+        for (int elem : row) {
+            if (elem == 1) {
+                cont++;
+            }
+        }
+    }
+    return cont;
+}
 
     /*
      * Comprovau si la relació `rel` és un ordre total sobre `a`. Si ho és retornau el nombre
