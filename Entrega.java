@@ -554,19 +554,39 @@ static int[][] composicion(int[][] rel1, int[][] rel2) {
      * Comprovau si la funció `f` amb domini `dom` i codomini `codom` té inversa. Si la té, retornau
      * el seu graf (el de l'inversa). Sino, retornau null.
      */
-    static int[][] exercici5(int[] dom, int[] codom, Function<Integer, Integer> f) {
-if (dom.length != codom.length) return null;
-      int[][] rel = new int[dom.length][2];
-      int[][] inv = new int[dom.length][2];
-      for (int i = 0; i < rel.length; i++) {
+static int[][] exercici5(int[] dom, int[] codom, Function<Integer, Integer> f) {
+    if (dom.length != codom.length) return null;
+    
+    int[][] rel = new int[dom.length][2];
+    int[][] inv = new int[dom.length][2];
+    
+    // Construye la relación original
+    for (int i = 0; i < rel.length; i++) {
         rel[i][0] = dom[i];
         rel[i][1] = f.apply(dom[i]);
         inv[i][1] = dom[i];
         inv[i][0] = f.apply(dom[i]);
-      }
-      if (!isFunctionForDomain(dom, codom, rel)) return null;
-      return inv;
     }
+    
+    // Verifica si la relación es una función sobre el dominio y el codomino
+    if (!isFunctionForDomain(dom, codom, rel)) return null;
+    
+    return inv;
+}
+
+/**
+ * Verifica si la relación `rel` es una función sobre el dominio `dom` y el codomino `codom`.
+ */
+static boolean isFunctionForDomain(int[] dom, int[] codom, int[][] rel) {
+    for (int i = 0; i < rel.length; i++) {
+        for (int j = 0; j < rel.length; j++) {
+            if (rel[i][0] == rel[j][0] && i != j) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
 
     /*
      * Aquí teniu alguns exemples i proves relacionades amb aquests exercicis (vegeu `main`)
