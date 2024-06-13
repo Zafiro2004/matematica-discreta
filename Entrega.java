@@ -279,7 +279,7 @@ for (int x : a) { // Comprobar si el conjunto `a` no contiene pares
       // Comprovar la transitivitat
       for (int[] par1 : rel) {  // Comprobar la transitividad
         for (int[] par2 : rel) {
-          if (par1[1] == pair2[0] && !contienePar(rel, par1[0], par2[1])) {  // Si el primer elemento de `par1` es igual al segundo elemento de `par2` y no contiene el par inverso en `rel`
+          if (par1[1] == par2[0] && !contienePar(rel, par1[0], par2[1])) {  // Si el primer elemento de `par1` es igual al segundo elemento de `par2` y no contiene el par inverso en `rel`
             return false;
           }
         }
@@ -296,8 +296,8 @@ for (int x : a) { // Comprobar si el conjunto `a` no contiene pares
  * @return `true` si el par está en `rel`, `false` en caso contrario.
  */
     static boolean contienePar(int[][] rel, int x, int y) {
-      for (int[] pair : rel) { // Recorrer cada par en `rel`
-        if (pair[0] == x && pair[1] == y) {
+      for (int[] par : rel) { // Recorrer cada par en `rel`
+        if (par[0] == x && par[1] == y) {
           return true;
         }
       }
@@ -397,9 +397,103 @@ static int contadorElementos(int[][] rel) {
      *
      * Podeu soposar que `a` i `rel` estan ordenats de menor a major (`rel` lexicogràficament).
      */
-    static int exercici3(int[] a, int[][] rel) {
-      return -1; // TODO
+    static int exercici3(int[] a, int[][] rel) 
+      if (!esReflexiva(a, rel) || !esAntisimetrica(rel) || !esTransitiva(rel) || !esTotal(a, rel)) {
+        return -2; 
     }
+    return numeroAristasHasse(rel);
+}
+
+/**
+ * Comprueba si la relación `rel` es reflexiva sobre `a`. Si lo es, devuelve true; 
+ * sino, devuelve false.
+ */
+static boolean esReflexiva(int[] a, int[][] rel) {
+    for (int i = 0; i < a.length; i++) {
+        if (rel[i][i] != 1) {
+            return false;
+        }
+    }
+    return true;
+}
+
+/**
+ * Comprueba si la relación `rel` es antisimétrica. Si lo es, devuelve true; 
+ * sino, devuelve false.
+ */
+static boolean esAntisimetrica(int[][] rel) {
+    int n = rel.length;
+    for (int i = 0; i < n; i++) {
+        if (rel[i][i] == 1) {
+            return false; // La relación debe ser estricta
+        }
+        for (int j = i + 1; j < n; j++) {
+            if (rel[i][j] == 1 && rel[j][i] == 1) {
+                return false; // La relación no es antisimétrica
+            }
+        }
+    }
+    return true;
+}
+
+/**
+ * Comprueba si la relación `rel` es transitiva. Si lo es, devuelve true; 
+ * sino, devuelve false.
+ */
+static boolean esTransitiva(int[][] rel) {
+    int n = rel.length;
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            for (int k = 0; k < n; k++) {
+                if (rel[i][j] == 1 && rel[j][k] == 1 && rel[i][k] != 1) {
+                    return false; // La relación no es transitiva
+                }
+            }
+        }
+    }
+    return true;
+}
+
+/**
+ * Comprueba si la relación `rel` es total sobre `a`. Si lo es, devuelve true; 
+ * sino, devuelve false.
+ */
+static boolean esTotal(int[] a, int[][] rel) {
+    int n = a.length;
+    for (int i = 0; i < n; i++) {
+        boolean esMenor = false;
+        boolean esMayor = false;
+        for (int j = 0; j < n; j++) {
+            if (rel[i][j] == 1) {
+                esMayor = true;
+            }
+            if (rel[j][i] == 1) {
+                esMenor = true;
+            }
+        }
+        if (!esMenor || !esMayor) {
+            return false; // No es total
+        }
+    }
+    return true;
+}
+
+/**
+ * Cuenta el número de aristas del diagrama de Hasse de la relación `rel`.
+ */
+static int numeroAristasHasse(int[][] rel) {
+    int cont = 0;
+    int n = rel.length;
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            if (rel[i][j] == 1 && rel[j][i] == 1 && i < j) {
+                cont++; // Hay una arista entre i y j en el diagrama de Hasse
+            }
+        }
+    }
+    return cont;
+}
+
 
 
     /*
@@ -409,10 +503,53 @@ static int contadorElementos(int[][] rel) {
      * Podeu soposar que `a`, `rel1` i `rel2` estan ordenats de menor a major (les relacions,
      * lexicogràficament).
      */
-    static int[][] exercici4(int[] a, int[][] rel1, int[][] rel2) {
-      return new int[][] {}; // TODO
+static int[][] exercici4(int[] a, int[][] rel1, int[][] rel2) {
+    if (!esFuncionValida(a, rel1) || !esFuncionValida(a, rel2)) {
+        return null;
     }
+    
+    return composicion(rel1, rel2);
+}
 
+/**
+ * Comprueba si la relación `rel` es válida como grafo de función con dominio y codomino `a`. 
+ * Si lo es, devuelve true; sino, devuelve false.
+ */
+static boolean esFuncionValida(int[] a, int[][] rel) {
+    for (int[] par : rel) {
+        if (par.length != 2 || !contiene(a, par[0]) || !contiene(a, par[1])) {
+            return false; 
+        }
+    }
+    return true;
+}
+
+/**
+ * Comprueba si el elemento `objetivo` está contenido en el array `ar`.
+ */
+static boolean contiene(int[] ar, int objetivo) {
+    for (int num : ar) {
+        if (num == objetivo) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
+ * Calcula la composición de las relaciones `rel1` y `rel2`.
+ */
+static int[][] composicion(int[][] rel1, int[][] rel2) {
+    List<int[]> resultado = new ArrayList<>();
+    for (int[] par1 : rel1) {
+        for (int[] par2 : rel2) {
+            if (par1[1] == par2[0]) { 
+                resultado.add(new int[]{par1[0], par2[1]}); 
+            }
+        }
+    }
+    return resultado.toArray(new int[0][]);
+}
     /*
      * Comprovau si la funció `f` amb domini `dom` i codomini `codom` té inversa. Si la té, retornau
      * el seu graf (el de l'inversa). Sino, retornau null.
