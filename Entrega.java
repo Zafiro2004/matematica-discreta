@@ -555,7 +555,17 @@ static int[][] composicion(int[][] rel1, int[][] rel2) {
      * el seu graf (el de l'inversa). Sino, retornau null.
      */
     static int[][] exercici5(int[] dom, int[] codom, Function<Integer, Integer> f) {
-      return new int[][] {}; // TODO
+if (dom.length != codom.length) return null;
+      int[][] rel = new int[dom.length][2];
+      int[][] inv = new int[dom.length][2];
+      for (int i = 0; i < rel.length; i++) {
+        rel[i][0] = dom[i];
+        rel[i][1] = f.apply(dom[i]);
+        inv[i][1] = dom[i];
+        inv[i][0] = f.apply(dom[i]);
+      }
+      if (!isFunctionForDomain(dom, codom, rel)) return null;
+      return inv;
     }
 
     /*
