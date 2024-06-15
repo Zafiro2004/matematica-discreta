@@ -734,9 +734,40 @@ static boolean isFunctionForDomain(int[] dom, int[] codom, int[][] rel) {
      * Determinau si el graf és connex. Podeu suposar que `g` no és dirigit.
      */
     static boolean exercici1(int[][] g) {
-      return false; // TO DO
-    }
+       if (g == null || g.length == 0) {
+            return false; // Si el grafo está vacío, no es conexo.
+        }
+    
+        int n = g.length;
+        boolean[] visitado = new boolean[n];
+    
+        dfs(g, 0, visitado); // Inicia el recorrido DFS desde el vértice 0.
+    
 
+        for (boolean vertexvisitado : visitado) {  // Verifica si todos los vértices han sido visitados.
+            if (!vertexvisitado) { // Si algún vértice no ha sido visitado, el grafo no es conexo.
+                return false;
+            }
+        }
+    
+        return true; // Si todos los vértices han sido visitados, el grafo es conexo.
+    }
+    
+/**
+ * Realiza un recorrido DFS en el grafo desde el vértice actual.
+ * 
+ * @param g Matriz de adyacencia que representa el grafo.
+ * @param vertex Vértice actual.
+ * @param visitado Arreglo que indica si cada vértice ha sido visitado.
+ */
+    static void dfs(int[][] g, int vertex, boolean[] visitado) {
+        visitado[vertex] = true;
+        for (int vecino : g[vertex]) {  // Recorre todos los vecinos del vértice actual.
+            if (!visitado[vecino]) { // Si el vecino no ha sido visitado, continúa el recorrido DFS desde él.
+                dfs(g, vecino, visitado);
+            }
+        }
+    }
     /*
      * Donat un tauler d'escacs d'amplada `w` i alçada `h`, determinau quin és el mínim nombre de
      * moviments necessaris per moure un cavall de la casella `i` a la casella `j`.
