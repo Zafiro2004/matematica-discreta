@@ -762,9 +762,9 @@ static boolean isFunctionForDomain(int[] dom, int[] codom, int[][] rel) {
  */
     static void dfs(int[][] g, int vertex, boolean[] visitado) {
         visitado[vertex] = true;
-        for (int vecino : g[vertex]) {  // Recorre todos los vecinos del vértice actual.
-            if (!visitado[vecino]) { // Si el vecino no ha sido visitado, continúa el recorrido DFS desde él.
-                dfs(g, vecino, visitado);
+        for (int hijo : g[vertex]) {  // Recorre todos los hijos del vértice actual.
+            if (!visitado[hijo]) { // Si el hijo no ha sido visitado, continúa el recorrido DFS desde él.
+                dfs(g, hijo, visitado);
             }
         }
     }
@@ -797,17 +797,14 @@ static boolean isFunctionForDomain(int[] dom, int[] codom, int[][] rel) {
         Queue<int[]> queue = new LinkedList<>();
         queue.offer(new int[]{startX, startY, 0});
         visitado[startY][startX] = true;
-
         while (!queue.isEmpty()) {
             int[] current = queue.poll();
             int x = current[0];
             int y = current[1];
             int contMovimientos = current[2];
-
             if (x == targetX && y == targetY) {
                 return contMovimientos;
             }
-
             for (int[] move : movimientos) {
                 int newX = x + move[0];
                 int newY = y + move[1];
@@ -818,17 +815,43 @@ static boolean isFunctionForDomain(int[] dom, int[] codom, int[][] rel) {
                 }
             }
         }
-
         return -1;
     }
-
 
     /*
      * Donat un arbre arrelat (graf dirigit `g`, amb arrel `r`), decidiu si el vèrtex `u` apareix
      * abans (o igual) que el vèrtex `v` al recorregut en preordre de l'arbre.
+     * @param g Matriz de adyacencia que representa el árbol.
+     * @param r Raíz del árbol.
+     * @param u Índice del vértice `u`.
+     * @param v Índice del vértice `v`.
+     * @return True si `u` aparece antes (o igual) que `v`, false en caso contrario.
      */
+    
     static boolean exercici3(int[][] g, int r, int u, int v) {
-      return false; // TO DO
+      // Inicializar la lista para almacenar los vértices en el orden en que se visitan
+       List<Integer> preorden = new ArrayList<>();
+        dfs(g, r, preorden); // Realizar el recorrido en preorden del árbol
+
+  // Encontrar los índices de los vértices `u` y `v` en la lista
+        int indexU = preorden.indexOf(u);
+        int indexV = preorden.indexOf(v);
+        return indexU != -1 && indexV != -1 && indexU <= indexV; // Devolver true si `u` aparece antes (o igual) que `v`
+    }
+    
+/**
+ * Realiza el recorrido en preorden del árbol desde el vértice actual.
+ *
+ * @param g Matriz de adyacencia que representa el árbol.
+ * @param node Vértice actual.
+ * @param preorder Lista para almacenar los vértices en el orden en que se visitan.
+ */
+    
+    static void dfs(int[][] g, int nodo, List<Integer> preorden) {
+        preorden.add(nodo); // Agregar el vértice actual a la lista de vértices en preorden
+        for (int hijo : g[nodo]) { // Recorrer los hijos del vértice actual
+            dfs(g, hijo, preorden); / Realizar el recorrido en preorden desde el hijo actual
+        }
     }
 
     /*
@@ -837,44 +860,75 @@ static boolean isFunctionForDomain(int[] dom, int[] codom, int[][] rel) {
      * l'arbre corresponent.
      *
      * L'altura d'un arbre arrelat és la major distància de l'arrel a les fulles.
+     *
+     * @param preord Recorrido en preorden del árbol.
+     * @param d Grau de cada vértice.
+     * @return La altura máxima del árbol.
      */
     static int exercici4(int[] preord, int[] d) {
-      return -1; // TO DO
-    }
+       int maxAltura = 0;  // Inicializar la altura máxima
 
+
+        maxAltura = calcAltura(preord, d, 0, preord.length, 0, maxAltura);   // Calcular la altura del árbol
+        return maxAltura; // Devolver la altura máxima
+    }
+    
+    **
+     * Calcula la altura del árbol a partir del vértice actual.
+     *
+     * @param preord Recorrido en preorden del árbol.
+     * @param d Grado de cada vértice.
+     * @param start Índice de inicio del rango actual.
+     * @param fin Índice de fin del rango actual.
+     * @param altura Altura actual.
+     * @param maxAltura Altura máxima.
+     * @return La altura máxima del árbol.
+     */
+    
+    static int calcAltura(int[] preord, int[] d, int start, int fin, int altura, int maxAltura) {
+        if (start >= fin) { // Si el índice de inicio es mayor o igual que el índice de fin, se ha llegado a una hoja
+            return altura;
+        }
+        int grado = d[preord[start]]; // Calcular el grado del vértice actual
+        altura++;  // Incrementar la altura actual
+        maxAltura = Math.max(maxAltura, altura);    // Actualizar la altura máxima si es necesario
+     // Buscar el rango de vértices que tienen un grau menor que el vértice actual
+        int sigRango = start + 1;
+        while (sigRango < fin && grado < d[preord[sigRango]]) {
+            sigRango++;
+        }
+    // Recorrer los vértices en el rango encontrado
+        for (int i = start + 1; i < sigRango; i++) {
+            maxAltura = calcAltura(preord, d, i, sigRango, altura, maxAltura);
+        }
+    // Calcular la altura del árbol desde el rango restante
+        maxAltura = calcAltura(preord, d, sigRango, fin, altura, maxAltura);
+        return maxAltura; 
+    }
     /*
      * Aquí teniu alguns exemples i proves relacionades amb aquests exercicis (vegeu `main`)
      */
     static void tests() {
       // Exercici 1
       // G connex?
-
       final int[][] B2 = { {}, {} };
-
       final int[][] C3 = { {1, 2}, {0, 2}, {0, 1} };
-
       final int[][] C3D = { {1}, {2}, {0} };
-
       assertThat(exercici1(C3));
       assertThat(!exercici1(B2));
-
       // Exercici 2
       // Moviments de cavall
-
       // Tauler 4x3. Moviments de 0 a 11: 3.
       // 0  1   2   3
       // 4  5   6   7
       // 8  9  10  11
       assertThat(exercici2(4, 3, 0, 11) == 3);
-
       // Tauler 3x2. Moviments de 0 a 2: (impossible).
       // 0 1 2
       // 3 4 5
       assertThat(exercici2(3, 2, 0, 2) == -1);
-
       // Exercici 3
       // u apareix abans que v al recorregut en preordre (o u=v)
-
       final int[][] T1 = {
         {1, 2, 3, 4},
         {5},
@@ -889,24 +943,18 @@ static boolean isFunctionForDomain(int[] dom, int[] codom, int[][] rel) {
         {},
         {}
       };
-
       assertThat(exercici3(T1, 0, 5, 3));
       assertThat(!exercici3(T1, 0, 6, 2));
-
       // Exercici 4
       // Altura de l'arbre donat el recorregut en preordre
-
       final int[] P1 = { 0, 1, 5, 2, 6, 7, 8, 3, 4, 9, 10, 11 };
       final int[] D1 = { 4, 1, 3, 0, 1, 0, 0, 0, 0, 2,  0,  0 };
-
       final int[] P2 = { 0, 1, 2, 3, 4, 5, 6, 7, 8 };
       final int[] D2 = { 2, 0, 2, 0, 2, 0, 2, 0, 0 };
-
       assertThat(exercici4(P1, D1) == 3);
       assertThat(exercici4(P2, D2) == 4);
     }
   }
-
   /*
    * Aquí teniu els exercicis del Tema 4 (Aritmètica).
    *
@@ -922,9 +970,22 @@ static boolean isFunctionForDomain(int[] dom, int[] codom, int[][] rel) {
      * Calculau el mínim comú múltiple de `a` i `b`.
      */
     static int exercici1(int a, int b) {
-      return -1; // TO DO
+        int prodAbs = Math.abs(a * b); // Calcula el producto absoluto de los dos números
+        int mcd = calcularMCD(a, b); // Calcula el Máximo Común Divisor (MCD) de los dos números
+        int mcm = prodAbs / mcd; // Calcula el Mínimo Común Múltiple (MCM) dividiendo el producto absoluto entre el MCD   
+        return mcm;
     }
-
+    /**
+     * Calcula el Máximo Común Divisor (MCD) de dos números enteros utilizando el algoritmo de Euclides.
+     */
+    private static int calcularMCD(int a, int b) {
+        while (b != 0) { // Se repite el proceso hasta que el resto sea cero
+            int temp = b;
+            b = a % b;
+            a = temp;
+        }
+        return a; // El valor final de 'a' es el MCD
+    }
     /*
      * Trobau totes les solucions de l'equació
      *
@@ -934,10 +995,53 @@ static boolean isFunctionForDomain(int[] dom, int[] codom, int[][] rel) {
      *
      * Podeu suposar que `n > 1`. Recordau que no no podeu utilitzar la força bruta.
      */
-    static int[] exercici2(int a, int b, int n) {
-      return new int[] {}; // TO DO
+static int[] exercici2(int a, int b, int n) {
+    // Calcula el Máximo Común Divisor (MCD) de a y n
+    int mcd = mcd(a, n);
+    if (b % mcd != 0) { // Si el MCD no divide a b, no hay soluciones
+        return new int[] {};
     }
-
+    // Calcula el resultado del algoritmo de Euclides extendido
+    int[] resultadoEuclides = euclidesExtendido(a, n);
+    int x0 = resultadoEuclides[1] * (b / mcd);
+    // Normaliza el valor de x0 (mod n)
+    x0 = (x0 % n + n) % n;
+    // Calcula el número de soluciones
+    int numSols = mcd;
+    // Genera todas las soluciones
+    int[] sols = new int[numSols];
+    for (int i = 0; i < numSols; i++) {
+        sols[i] = (x0 + i * (n / mcd)) % n;
+    }
+    return sols;
+}
+/**
+ * Calcula el Máximo Común Divisor (MCD) de dos números.
+ */
+private static int mcd(int a, int n) {
+    
+    while (n != 0) { // Se repite el proceso hasta que el resto sea cero
+        int temp = n;
+        n = a % n;
+        a = temp;
+    }
+    return a;
+}
+/**
+ * Calcula el resultado del algoritmo de Euclides extendido.
+ */
+private static int[] euclidesExtendido(int a, int n) {
+    int[] resultado = new int[2];
+    if (n == 0) {
+        resultado[0] = a;
+        resultado[1] = 1;
+    } else {
+        int[] temp = euclidesExtendido(n, a % n);
+        resultado[0] = temp[0];
+        resultado[1] = temp[1] - (a / n) * temp[0];
+    }
+    return resultado;
+}
     /*
      * Donats `a != 0`, `b != 0`, `c`, `d`, `m > 1`, `n > 1`, determinau si el sistema
      *
@@ -946,10 +1050,72 @@ static boolean isFunctionForDomain(int[] dom, int[] codom, int[][] rel) {
      *
      * té solució.
      */
-    static boolean exercici3(int a, int b, int c, int d, int m, int n) {
-      return false; // TO DO
+static boolean exercici3(int a, int b, int c, int d, int m, int n) {
+    // Calcula el MCD de a y m
+    int mcdAM = mcd(a, m);
+    // Calcula el MCD de b y n
+    int mcdBN = mcd(b, n);
+
+    // Si c no es divisible por el MCD de a y m, o d no es divisible por el MCD de b y n, no hay solución
+    if (c % mcdAM != 0 || d % mcdBN != 0) {
+        return false;
+    }
+    // Calcula el resultado del algoritmo de Euclides extendido para a y m
+    int[] resultadoEuclidesAM = euclidesExtendido(a, m);
+    int x1 = (resultadoEuclidesAM[1] * (c / mcdAM)) % m;
+
+    // Calcula el resultado del algoritmo de Euclides extendido para b y n
+    int[] resultadoEuclidesBN = euclidesExtendido(b, n);
+    int x2 = (resultadoEuclidesBN[1] * (d / mcdBN)) % n;
+
+    // Asegurarse de que x1 y x2 sean congruentes módulo el MCM de m y n
+    int mcmMN = mcm(m, n);
+    if (x1 < 0) {
+        x1 += m;
+    }
+    if (x2 < 0) {
+        x2 += n;
     }
 
+    // Comprobar si las soluciones son congruentes módulo el MCM de m y n
+    return x1 % mcmMN == x2 % mcmMN;
+}
+/**
+ * Calcula el Mínimo Común Múltiplo (MCM) de dos números.
+ */
+static int mcm(int a, int b) {
+    return (a * b) / mcd(a, b);
+}
+/**
+ * Calcula el Máximo Común Divisor (MCD) de dos números.
+ */
+static int mcd(int a, int b) {
+    while (b != 0) {
+        int temp = b;
+        b = a % b;
+        a = temp;
+    }
+    return a;
+}
+/**
+ * Calcula el resultado del algoritmo de Euclides extendido.
+ */
+static int[] euclidesExtendido(int a, int b) {
+    int x = 0, y = 1, lastx = 1, lasty = 0;
+    while (b != 0) {
+        int cociente = a / b;
+        int temp = a;
+        a = b;
+        b = temp % b;
+        temp = x;
+        x = lastx - cociente * x;
+        lastx = temp;
+        temp = y;
+        y = lasty - cociente * y;
+        lasty = temp;
+    }
+    return new int[] { a, lastx, lasty };
+}
     /*
      * Donats `n` un enter, `k > 0` enter, i `p` un nombre primer, retornau el residu de dividir n^k
      * entre p.
@@ -960,10 +1126,34 @@ static boolean isFunctionForDomain(int[] dom, int[] codom, int[][] rel) {
      * Anau alerta també abusant de la força bruta, la vostra implementació hauria d'executar-se en
      * qüestió de segons independentment de l'entrada.
      */
-    static int exercici4(int n, int k, int p) {
-      return -1; // TO DO
+static int exercici4(int n, int k, int p) {
+    // Si la potencia es 0, el residuo es siempre 1
+    if (k == 0) {
+        return 1 % p; // 1 mod p = 1
     }
 
+    // Variable para almacenar el resultado
+    long resultado = 1;
+    // Variable para almacenar el valor de `n` módulo `p`
+    long base = n % p;
+    // Variable para almacenar el valor de `k`
+    long exponente = k;
+
+    // Itera hasta que `exponente` sea 0
+    while (exponente > 0) {
+        // Si `exponente` es impar, multiplica `resultado` por `base` módulo `p`
+        if (exponente % 2 == 1) {
+            resultado = (resultado * base) % p;
+        }
+        // Actualiza `base` como el cuadrado de `base` módulo `p`
+        base = (base * base) % p;
+      
+        exponente = exponente / 2;
+    }
+
+    // Devuelve el resultado como un entero
+    return (int) resultado;
+}
     /*
      * Aquí teniu alguns exemples i proves relacionades amb aquests exercicis (vegeu `main`)
      */
