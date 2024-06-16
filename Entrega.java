@@ -780,8 +780,48 @@ static boolean isFunctionForDomain(int[] dom, int[] codom, int[][] rel) {
      * Retornau el nombre mínim de moviments, o -1 si no és possible arribar-hi.
      */
     static int exercici2(int w, int h, int i, int j) {
-      return -1; // TO DO
+      // Calcular las coordenadas x e y de las casillas de partida y destino
+      int startX = i % w;
+        int startY = i / w;
+        int targetX = j % w;
+        int targetY = j / w;
+
+        if (targetX < 0 || targetX >= w || targetY < 0 || targetY >= h) { // Comprobar si la casilla de destino está fuera del tablero
+            return -1; // No es posible llegar a la casilla de destino
+        }
+
+        boolean[][] visitado = new boolean[h][w];  // Inicializar la matriz de casillas visitadas
+
+        int[][] movimientos = {{-2, -1}, {-1, -2}, {1, -2}, {2, -1}, {2, 1}, {1, 2}, {-1, 2}, {-2, 1}};
+
+        Queue<int[]> queue = new LinkedList<>();
+        queue.offer(new int[]{startX, startY, 0});
+        visitado[startY][startX] = true;
+
+        while (!queue.isEmpty()) {
+            int[] current = queue.poll();
+            int x = current[0];
+            int y = current[1];
+            int contMovimientos = current[2];
+
+            if (x == targetX && y == targetY) {
+                return contMovimientos;
+            }
+
+            for (int[] move : movimientos) {
+                int newX = x + move[0];
+                int newY = y + move[1];
+
+                if (newX >= 0 && newX < w && newY >= 0 && newY < h && !visitado[newY][newX]) {
+                    queue.offer(new int[]{newX, newY, contMovimientos + 1});
+                    visitado[newY][newX] = true;
+                }
+            }
+        }
+
+        return -1;
     }
+
 
     /*
      * Donat un arbre arrelat (graf dirigit `g`, amb arrel `r`), decidiu si el vèrtex `u` apareix
